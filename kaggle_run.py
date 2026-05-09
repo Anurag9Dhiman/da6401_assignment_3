@@ -11,6 +11,7 @@ subprocess.run([sys.executable, "-m", "spacy", "download", "de_core_news_sm"], c
 subprocess.run([sys.executable, "-m", "spacy", "download", "en_core_web_sm"], check=True)
 
 # ── 2. W&B login ─────────────────────────────────────────────────────────────
+os.environ.pop("WANDB_REINIT", None)  # clear any stale wandb setting
 import wandb
 from kaggle_secrets import UserSecretsClient
 secrets = UserSecretsClient()
