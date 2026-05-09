@@ -524,7 +524,12 @@ class Transformer(nn.Module):
 
             self._src_vocab = ckpt["src_vocab"]
             self._tgt_vocab = ckpt["tgt_vocab"]
-            self._nlp_de    = spacy.load("de_core_news_sm")
+            try:
+                self._nlp_de = spacy.load("de_core_news_sm")
+            except OSError:
+                import subprocess, sys
+                subprocess.run([sys.executable, "-m", "spacy", "download", "de_core_news_sm"], check=True)
+                self._nlp_de = spacy.load("de_core_news_sm")
             _state_dict     = ckpt["model_state_dict"]
         else:
             self._src_vocab = None
