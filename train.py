@@ -483,11 +483,11 @@ def run_noam_vs_fixed_experiment(
     Logs train_loss and val_loss curves to W&B for comparison.
     """
     for lr_type in ("noam", "fixed"):
+        wandb.finish()
         run = wandb.init(
             project=cfg["wandb_project"],
             name=f"lr_experiment_{lr_type}",
             config=_wandb_cfg(cfg, lr_type=lr_type),
-            reinit="finish_previous",
         )
         model = Transformer(
             src_vocab_size, tgt_vocab_size,
@@ -553,11 +553,11 @@ def run_scaling_ablation(
         if not use_scaling:
             model_module.scaled_dot_product_attention = sdpa_no_scale
 
+        wandb.finish()
         run = wandb.init(
             project=cfg["wandb_project"],
             name=f"scaling_{tag}",
             config=_wandb_cfg(cfg, use_scaling=use_scaling),
-            reinit="finish_previous",
         )
         mdl = Transformer(
             src_vocab_size, tgt_vocab_size,
@@ -618,11 +618,11 @@ def run_pe_ablation(
             return self.dropout(x + self.embed(positions))
 
     for pe_type in ("sinusoidal", "learned"):
+        wandb.finish()
         run = wandb.init(
             project=cfg["wandb_project"],
             name=f"pe_{pe_type}",
             config=_wandb_cfg(cfg, pe_type=pe_type),
-            reinit="finish_previous",
         )
         mdl = Transformer(
             src_vocab_size, tgt_vocab_size,
@@ -667,11 +667,11 @@ def run_label_smoothing_ablation(
     """
     for eps in (0.1, 0.0):
         tag = f"smoothing_{eps}"
+        wandb.finish()
         run = wandb.init(
             project=cfg["wandb_project"],
             name=tag,
             config=_wandb_cfg(cfg, label_smoothing=eps),
-            reinit="finish_previous",
         )
         mdl = Transformer(
             src_vocab_size, tgt_vocab_size,
@@ -774,8 +774,9 @@ def run_training_experiment() -> None:
     print(f"  src vocab: {src_vocab_size}  |  tgt vocab: {tgt_vocab_size}")
 
     # ── Main training run (Noam + label smoothing) ────────────────────
+    wandb.finish()
     wandb.init(project=cfg["wandb_project"], name="main_run",
-               config=_wandb_cfg(cfg), reinit="finish_previous")
+               config=_wandb_cfg(cfg))
 
     model = Transformer(
         src_vocab_size, tgt_vocab_size,
