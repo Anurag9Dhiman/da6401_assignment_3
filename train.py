@@ -487,7 +487,7 @@ def run_noam_vs_fixed_experiment(
             project=cfg["wandb_project"],
             name=f"lr_experiment_{lr_type}",
             config=_wandb_cfg(cfg, lr_type=lr_type),
-            reinit="finish",
+            reinit="finish_previous",
         )
         model = Transformer(
             src_vocab_size, tgt_vocab_size,
@@ -557,7 +557,7 @@ def run_scaling_ablation(
             project=cfg["wandb_project"],
             name=f"scaling_{tag}",
             config=_wandb_cfg(cfg, use_scaling=use_scaling),
-            reinit="finish",
+            reinit="finish_previous",
         )
         mdl = Transformer(
             src_vocab_size, tgt_vocab_size,
@@ -622,7 +622,7 @@ def run_pe_ablation(
             project=cfg["wandb_project"],
             name=f"pe_{pe_type}",
             config=_wandb_cfg(cfg, pe_type=pe_type),
-            reinit="finish",
+            reinit="finish_previous",
         )
         mdl = Transformer(
             src_vocab_size, tgt_vocab_size,
@@ -671,7 +671,7 @@ def run_label_smoothing_ablation(
             project=cfg["wandb_project"],
             name=tag,
             config=_wandb_cfg(cfg, label_smoothing=eps),
-            reinit="finish",
+            reinit="finish_previous",
         )
         mdl = Transformer(
             src_vocab_size, tgt_vocab_size,
@@ -775,7 +775,7 @@ def run_training_experiment() -> None:
 
     # ── Main training run (Noam + label smoothing) ────────────────────
     wandb.init(project=cfg["wandb_project"], name="main_run",
-               config=_wandb_cfg(cfg), reinit="finish")
+               config=_wandb_cfg(cfg), reinit="finish_previous")
 
     model = Transformer(
         src_vocab_size, tgt_vocab_size,
