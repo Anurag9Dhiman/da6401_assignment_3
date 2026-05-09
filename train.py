@@ -409,7 +409,7 @@ def load_checkpoint(
     Returns:
         epoch : The epoch at which the checkpoint was saved (int).
     """
-    ckpt = torch.load(path, map_location="cpu")
+    ckpt = torch.load(path, map_location="cpu", weights_only=False)
     model.load_state_dict(ckpt["model_state_dict"])
     if optimizer is not None and "optimizer_state_dict" in ckpt:
         optimizer.load_state_dict(ckpt["optimizer_state_dict"])
