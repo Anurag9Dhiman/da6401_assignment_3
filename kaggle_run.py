@@ -18,9 +18,14 @@ print("W&B login successful")
 # ── 3. Clone repo ─────────────────────────────────────────────────────────────
 token = secrets.get_secret("GITHUB_TOKEN")
 clone_url = f"https://{token}@github.com/Anurag9Dhiman/da6401_assignment_3.git"
-subprocess.run(["git", "clone", clone_url, "/kaggle/working/project"], check=True)
-os.chdir("/kaggle/working/project")
-print("Repo cloned. Files:", os.listdir("."))
+project_dir = "/kaggle/working/project"
+if os.path.exists(project_dir):
+    subprocess.run(["git", "-C", project_dir, "remote", "set-url", "origin", clone_url], check=True)
+    subprocess.run(["git", "-C", project_dir, "pull", "--rebase"], check=True)
+else:
+    subprocess.run(["git", "clone", clone_url, project_dir], check=True)
+os.chdir(project_dir)
+print("Repo ready. Files:", os.listdir("."))
 
 # ── 4. Verify GPU ─────────────────────────────────────────────────────────────
 import torch
