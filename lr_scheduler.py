@@ -1,5 +1,5 @@
 """
-Noam Learning Rate Scheduler
+noam_lr_scheduler.py — Noam Learning Rate Scheduler
 Reference: "Attention Is All You Need" (Vaswani et al., 2017)
            https://arxiv.org/abs/1706.03762
 
@@ -13,7 +13,7 @@ from torch.optim.lr_scheduler import LRScheduler
 
 
 # ─────────────────────────────────────────────
-# TODO: Implement the NoamScheduler class below
+# NoamScheduler
 # ─────────────────────────────────────────────
 
 class NoamScheduler(LRScheduler):
@@ -25,40 +25,36 @@ class NoamScheduler(LRScheduler):
     root of the step number.
 
     Args:
-        optimizer (torch.optim.Optimizer): Wrapped optimizer.
-        d_model          (int)  : Model dimensionality (embedding size).
-        warmup_steps     (int)  : Number of warm-up steps before decay begins.
-        last_epoch       (int)  : The index of the last epoch. Default: -1.
+        optimizer    (torch.optim.Optimizer): Wrapped optimizer.
+        d_model      (int)  : Model dimensionality (embedding size).
+        warmup_steps (int)  : Number of warm-up steps before decay begins.
+        last_epoch   (int)  : The index of the last epoch. Default: -1.
     """
 
-    def __init__(
-        self,
-        optimizer: optim.Optimizer,
-        d_model: int,
-        warmup_steps: int,
-        last_epoch: int = -1,
-    ) -> None:
-        # TODO: Store d_model and warmup_steps as instance attributes
-        # TODO: Call the parent __init__
-        raise NotImplementedError
+    def __init__(self, optimizer, d_model, warmup_steps, last_epoch=-1):
+        self.d_model       = d_model
+        self.warmup_steps  = warmup_steps
+        # Parent __init__ must come after setting instance attributes
+        # because it internally calls get_lr() on construction.
+        super().__init__(optimizer, last_epoch)
 
     # ------------------------------------------------------------------
-    def _get_lr_scale(self) -> float:
+    def _get_lr_scale(self):
         """
         Compute the Noam scaling factor for the current step.
 
         Returns:
             float: The scalar multiplier applied to the base learning rate.
-
-        Hint:
-            step = self.last_epoch + 1            # avoid step=0
-            scale = d_model^(-0.5) * min(step^(-0.5), step * warmup_steps^(-1.5))
         """
-        # TODO: Implement and return the Noam scale factor
-        raise NotImplementedError
+        # Offset by 1 so we never evaluate at step=0 (division by zero).
+        step = self.last_epoch + 1
+        inv_sqrt_step    = step ** (-0.5)
+        linear_warmup    = step * (self.warmup_steps ** (-1.5))
+        scale = (self.d_model ** (-0.5)) * min(inv_sqrt_step, linear_warmup)
+        return scale
 
     # ------------------------------------------------------------------
-    def get_lr(self) -> list[float]:
+    def get_lr(self):
         """
         Compute learning rates for every param group.
 
@@ -66,24 +62,16 @@ class NoamScheduler(LRScheduler):
 
         Returns:
             list[float]: New learning rate for each param group in the optimizer.
-
-        Hint:
-            Multiply each group's `base_lr` by the value from `_get_lr_scale()`.
-            Access base learning rates via `self.base_lrs`.
         """
-        # TODO: Return a list of scaled LRs, one per param group
-        raise NotImplementedError
+        scale = self._get_lr_scale()
+        return [base_lr * scale for base_lr in self.base_lrs]
 
 
 # ──────────────────────────────────────────────────────────────────────
 # Helper — do NOT modify
 # ──────────────────────────────────────────────────────────────────────
 
-def get_lr_history(
-    d_model: int,
-    warmup_steps: int,
-    total_steps: int,
-) -> list[float]:
+def get_lr_history(d_model, warmup_steps, total_steps):
     """
     Simulate the LR trajectory of NoamScheduler for `total_steps` steps.
 
