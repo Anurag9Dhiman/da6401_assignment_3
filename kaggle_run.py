@@ -2,6 +2,8 @@ import os
 import subprocess
 import sys
 
+os.chdir("/kaggle/working")  # reset cwd in case previous run left a stale path
+
 # ── 1. Install dependencies ───────────────────────────────────────────────────
 subprocess.run([sys.executable, "-m", "pip", "install", "-q",
                 "wandb", "sacrebleu", "seaborn", "gdown", "datasets", "spacy"], check=True)
