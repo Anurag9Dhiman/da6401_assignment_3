@@ -18,14 +18,12 @@ wandb.login(key=secrets.get_secret("WANDB_API_KEY"))
 print("W&B login successful")
 
 # ── 3. Clone repo ─────────────────────────────────────────────────────────────
+import shutil
 token = secrets.get_secret("GITHUB_TOKEN")
 clone_url = f"https://{token}@github.com/Anurag9Dhiman/da6401_assignment_3.git"
 project_dir = "/kaggle/working/project"
-if os.path.exists(project_dir):
-    subprocess.run(["git", "-C", project_dir, "remote", "set-url", "origin", clone_url], check=True)
-    subprocess.run(["git", "-C", project_dir, "pull", "--rebase"], check=True)
-else:
-    subprocess.run(["git", "clone", clone_url, project_dir], check=True)
+shutil.rmtree(project_dir, ignore_errors=True)
+subprocess.run(["git", "clone", clone_url, project_dir], check=True)
 os.chdir(project_dir)
 print("Repo ready. Files:", os.listdir("."))
 
