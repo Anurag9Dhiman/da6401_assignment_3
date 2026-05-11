@@ -731,7 +731,7 @@ def run_label_smoothing_ablation(
 #  EXPERIMENT ENTRY POINT
 # ══════════════════════════════════════════════════════════════════════
 
-def run_training_experiment() -> None:
+def run_training_experiment(skip_experiments: bool = False) -> None:
     """
     Set up and run the full training experiment plus all W&B ablations.
 
@@ -749,13 +749,13 @@ def run_training_experiment() -> None:
     """
     # ── Hyperparameters ───────────────────────────────────────────────
     cfg = {
-        "d_model"        : 256,
-        "N"              : 3,
+        "d_model"        : 512,
+        "N"              : 6,
         "num_heads"      : 8,
-        "d_ff"           : 512,
+        "d_ff"           : 2048,
         "dropout"        : 0.1,
         "batch_size"     : 128,
-        "epochs"         : 50,    # main training — maximise BLEU for autograder
+        "epochs"         : 100,   # main training — maximise BLEU for autograder
         "exp_epochs"     : 20,    # ablation experiments — clear comparison curves
         "warmup_steps"   : 4000,
         "label_smoothing": 0.1,
@@ -839,22 +839,23 @@ def run_training_experiment() -> None:
     wandb.finish()
     _grad_norm_log = False   # stop gradient logging before ablation runs
 
-    # ── W&B ablation experiments ──────────────────────────────────────
-    print("\nRunning §2.1 Noam vs fixed-LR experiment …")
-    run_noam_vs_fixed_experiment(cfg, train_loader, val_loader,
-                                 src_vocab_size, tgt_vocab_size, device)
+    if not skip_experiments:
+        # ── W&B ablation experiments ──────────────────────────────────────
+        print("\nRunning §2.1 Noam vs fixed-LR experiment …")
+        run_noam_vs_fixed_experiment(cfg, train_loader, val_loader,
+                                     src_vocab_size, tgt_vocab_size, device)
 
-    print("Running §2.2 scaling-factor ablation …")
-    run_scaling_ablation(cfg, train_loader, val_loader,
-                         src_vocab_size, tgt_vocab_size, device)
+        print("Running §2.2 scaling-factor ablation …")
+        run_scaling_ablation(cfg, train_loader, val_loader,
+                             src_vocab_size, tgt_vocab_size, device)
 
-    print("Running §2.4 PE vs learned embeddings …")
-    run_pe_ablation(cfg, train_loader, val_loader,
-                    src_vocab_size, tgt_vocab_size, device)
+        print("Running §2.4 PE vs learned embeddings …")
+        run_pe_ablation(cfg, train_loader, val_loader,
+                        src_vocab_size, tgt_vocab_size, device)
 
-    print("Running §2.5 label smoothing ablation …")
-    run_label_smoothing_ablation(cfg, train_loader, val_loader,
-                                 src_vocab_size, tgt_vocab_size, device)
+        print("Running §2.5 label smoothing ablation …")
+        run_label_smoothing_ablation(cfg, train_loader, val_loader,
+                                     src_vocab_size, tgt_vocab_size, device)
 
     print("\nAll experiments complete.")
 

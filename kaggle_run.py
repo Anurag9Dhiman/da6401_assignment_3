@@ -37,7 +37,7 @@ if torch.cuda.is_available():
 
 # ── 5. Train ──────────────────────────────────────────────────────────────────
 from train import run_training_experiment
-run_training_experiment()
+run_training_experiment(skip_experiments=True)
 
 # ── 6. Checkpoint info ────────────────────────────────────────────────────────
 ckpt = "/kaggle/working/project/best_checkpoint.pt"
