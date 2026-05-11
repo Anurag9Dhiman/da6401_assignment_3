@@ -749,13 +749,13 @@ def run_training_experiment(skip_experiments: bool = False) -> None:
     """
     # ── Hyperparameters ───────────────────────────────────────────────
     cfg = {
-        "d_model"        : 512,
-        "N"              : 6,
+        "d_model"        : 256,
+        "N"              : 3,
         "num_heads"      : 8,
-        "d_ff"           : 2048,
+        "d_ff"           : 512,
         "dropout"        : 0.1,
         "batch_size"     : 128,
-        "epochs"         : 70,    # main training — maximise BLEU for autograder
+        "epochs"         : 100,   # main training — maximise BLEU for autograder
         "exp_epochs"     : 20,    # ablation experiments — clear comparison curves
         "warmup_steps"   : 4000,
         "label_smoothing": 0.1,
