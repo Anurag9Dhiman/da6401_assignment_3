@@ -643,43 +643,22 @@ class Transformer(nn.Module):
         src      = torch.tensor([ids], dtype=torch.long, device=device)
         src_mask = make_src_mask(src)
 
-        # Beam search decode
-        beam_size = 5
+        # Autoregressive greedy decode
         self.eval()
         with torch.no_grad():
             memory = self.encode(src, src_mask)
-            # beams: list of (log_prob, token_id_list)
-            beams = [(0.0, [sos_idx])]
-            completed = []
-
+            ys     = torch.tensor([[sos_idx]], dtype=torch.long, device=device)
             for _ in range(100):
-                if not beams:
+                tgt_mask = make_tgt_mask(ys)
+                logits   = self.decode(memory, src_mask, ys, tgt_mask)
+                next_tok = logits[:, -1, :].argmax(dim=-1, keepdim=True)
+                ys       = torch.cat([ys, next_tok], dim=1)
+                if next_tok.item() == eos_idx:
                     break
-                candidates = []
-                for score, seq in beams:
-                    if seq[-1] == eos_idx:
-                        completed.append((score, seq))
-                        continue
-                    ys       = torch.tensor([seq], dtype=torch.long, device=device)
-                    tgt_mask = make_tgt_mask(ys)
-                    logits   = self.decode(memory, src_mask, ys, tgt_mask)
-                    log_probs = torch.log_softmax(logits[:, -1, :], dim=-1)[0]
-                    topk_lp, topk_ids = log_probs.topk(beam_size)
-                    for lp, tid in zip(topk_lp.tolist(), topk_ids.tolist()):
-                        candidates.append((score + lp, seq + [tid]))
-
-                # length-normalised ranking
-                candidates.sort(key=lambda x: x[0] / len(x[1]), reverse=True)
-                beams = candidates[:beam_size]
-
-            completed.extend(beams)
-            best_score, best_seq = max(
-                completed, key=lambda x: x[0] / max(len(x[1]), 1)
-            )
 
         # Detokenise — strip special tokens
         out_tokens = []
-        for idx in best_seq:
+        for idx in ys[0].tolist():
             tok = self._tgt_vocab.lookup_token(idx)
             if tok == "<sos>":
                 continue
