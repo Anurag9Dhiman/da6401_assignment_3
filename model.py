@@ -24,7 +24,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 # ── Fill this after uploading best_checkpoint.pt to Google Drive ──────────────
-_GDRIVE_FILE_ID  = "1pSSmJpuVCMy-Binn-kiKfZRvAEXoBdJf"
+_GDRIVE_FILE_ID  = "1DZ4YTkCH-4GB3sjf4sNkM3YUtKA92QEh"
 _CHECKPOINT_PATH = "best_checkpoint.pt"
 
 
